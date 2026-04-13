@@ -1,0 +1,5 @@
+Fastapi
+uvicorn 
+requests
+python-dotenv
+notion-client==2.2.1
