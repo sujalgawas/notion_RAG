@@ -1,5 +1,15 @@
-Fastapi
-uvicorn 
+fastapi
+uvicorn
 requests
 python-dotenv
 notion-client==2.2.1
+
+langchain
+langchain-core
+langchain-community
+langchain-text-splitters
+langchain-ollama
+langchain-huggingface
+
+sentence-transformers
+faiss-cpu
