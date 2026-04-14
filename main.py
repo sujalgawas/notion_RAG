@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from notion_client import Client, APIErrorCode, APIResponseError
+from notion_client import Client, APIErrorCode
+import time
+from notion_client.errors import HTTPResponseError, APIResponseError
 import os
 from RAG import build_rag,query_rag
 from pydantic import BaseModel
@@ -71,26 +73,49 @@ def extract_text_from_block(block: dict) -> str:
 
     return " ".join(rt.get("plain_text", "") for rt in rich_text)
 
+def _fetch_blocks_with_retry(page_id: str, retries: int = 3, delay: float = 2.0) -> list:
+    for attempt in range(retries):
+        try:
+            response = notion.blocks.children.list(block_id=page_id)
+            return response.get("results", [])
+        except HTTPResponseError as e:
+            if e.status == 502 and attempt < retries - 1:
+                print(f"Got 502, retrying in {delay}s (attempt {attempt + 1}/{retries})...")
+                time.sleep(delay)
+            else:
+                raise
+    return []
 
-def get_page_content(page_id: str) -> list[str]:
+def get_page_content(page_id: str) -> list[dict]:
     try:
-        response = notion.blocks.children.list(block_id=page_id)
-        blocks = response.get("results", [])
-        
+        # Get page title
+        page = notion.pages.retrieve(page_id=page_id)
+        title = ""
+        for prop in page.get("properties", {}).values():
+            if prop.get("type") == "title":
+                rich_text = prop.get("title", [])
+                if rich_text:
+                    title = rich_text[0].get("plain_text", "")
+                break
+
+        # Get blocks with retry for 502s
+        blocks = _fetch_blocks_with_retry(page_id)
+
         content = []
         for block in blocks:
             text = extract_text_from_block(block)
             if text.strip():
                 content.append({
                     "type": block.get("type"),
-                    "text": text
+                    "text": f"{title} \n {text}"
                 })
-        
+
         return content
 
     except APIResponseError as e:
         print(f"Error fetching page {page_id}: {e}")
         return []
+
 
 
 def page_id_to_document(page_ids: list, dic_db_to_page: dict) -> dict:
