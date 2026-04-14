@@ -7,17 +7,17 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 
 def build_rag(documents: list):
+    """
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=200, add_start_index=True
+        chunk_size=2000, chunk_overlap=400, add_start_index=True
     )
     all_splits = text_splitter.split_documents(documents)
-
+    """
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
-    vector_store = FAISS.from_documents(all_splits, embeddings)
+    vector_store = FAISS.from_documents(documents, embeddings)
     vector_store.save_local(FAISS_PATH)
 
-    print(f"FAISS index saved — {len(all_splits)} chunks indexed")
     return vector_store
 
 
@@ -32,9 +32,5 @@ def query_rag(query: str, k: int = 2):
 
     query_vector = embeddings.embed_query(query)
     similarity_score = vector_store.similarity_search_with_score_by_vector(query_vector, k=k)
-
-    for doc, score in similarity_score:
-        print(f"Score: {score:.4f} | Source: {doc.metadata.get('page_id', 'unknown')}")
-        print(f"Content: {doc.page_content[:200]}\n")
 
     return similarity_search, similarity_score

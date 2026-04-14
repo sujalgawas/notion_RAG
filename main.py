@@ -112,10 +112,12 @@ class ChatbotQuery(BaseModel):
     
 def documents_to_langchain(documents_pages: dict) -> list[Document]:
     langchain_docs = []
+    
+    print(documents_pages)
 
     for key, value in documents_pages.items():
         if isinstance(value, list):
-            text = "\n".join(block["text"] for block in value if "text" in block)
+            text = "\n".join(block["text"] or block["header"] for block in value if "text" in block)
             if text.strip():
                 langchain_docs.append(Document(
                     page_content=text,
@@ -159,7 +161,7 @@ def build_rag_database():
 
 @app.post("/chatbot")
 def chatbot(body: ChatbotQuery):
-    search, scores = query_rag(body.query)
+    search, scores = query_rag(body.query,k=3)
 
     return {
         "response": chatbot_response(body.query, search),
