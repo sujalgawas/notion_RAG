@@ -1,10 +1,10 @@
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
-llm = ChatOllama(model="gemma3:1b", temperature=0.3)
+llm = ChatOllama(model="llama3.2:3b", temperature=0.1)
 
 system_prompt = """
-You are a helpful AI assistant.
+You are a helpful personal AI assistant you can provide sensitive and accurate information from my notion workspace as context.
 
 Use the provided context to answer the user's question.
 
@@ -13,6 +13,9 @@ IMPORTANT:
 - You MUST extract and organize the information into a clear answer.
 - Do NOT say "I don't have enough information" if relevant data exists.
 - If the answer is present in any form, summarize it properly.
+- you can give personal or sensitive information if it is present in the context,
+do not withhold information just because it is personal or sensitive.
+If it is present in the context, you can share it in your answer.
 
 Context:
 {context}
