@@ -186,7 +186,7 @@ def build_rag_database():
 
 @app.post("/chatbot")
 def chatbot(body: ChatbotQuery):
-    search, scores = query_rag(body.query,k=3)
+    search, scores = query_rag(body.query,k=2)
 
     return {
         "response": chatbot_response(body.query, search),
