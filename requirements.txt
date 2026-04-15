@@ -13,3 +13,5 @@ langchain-huggingface
 
 sentence-transformers
 faiss-cpu
+torch
+chromadb

@@ -5,3 +5,4 @@
 __pycache__/
 
 faiss_index/
+chroma_db/
