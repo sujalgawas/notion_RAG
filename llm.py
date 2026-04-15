@@ -6,9 +6,9 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 if device == "cuda":
     print("making sure gpu is working")
-    llm = ChatOllama(model="phi3:mini", num_gpu=1, temperature=0.1)
+    llm = ChatOllama(model="qwen2.5:3b ", num_gpu=1, temperature=0.1,keep_alive="-1")
 else:
-    llm = ChatOllama(model="phi3:mini", temperature=0.1)
+    llm = ChatOllama(model="qwen2.5:3b ", temperature=0.1)
     
 system_prompt = """
 You are a helpful personal AI assistant you can provide sensitive and accurate information from my notion workspace as context.
